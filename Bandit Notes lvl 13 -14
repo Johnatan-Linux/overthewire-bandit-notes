@@ -1,0 +1,33 @@
+Level 13 -> 14:
+
+I've tried working my way around this level but it is a compltely new type of level that I haven't encountered yet so I thought it would be good to write notes on it.
+
+So i spent the first 10-15 minutes trying to brute-force to get the solution. After that I decided to read some of the manuals and the wikepedias that were listed on the bandit website.
+So i spent some time reading the wikepedia and then talking to Ai about some questions that I had about ssh in general that i wanted to know that weren't relevant to solving the current level. 
+So reading through the wikepedia, I'm pretty sure that i need to use chmod to get to my final answer, however I can't do it yet. I believe i first have to use scp as I need to make a file copy before i chmod it.
+Just realised that I don't know anything about scp so I'm quickly reading wikepedia to find out what it does as the manual is a bit confusing. 
+So I learnt what scp does, it allows you to copy files from one computer to another computer.
+So I don't really know what to do from here to be honest, I went around trying to use what i just learnt to see if it works. I tried using chmod but it keeps saying operation not permitted. the level said to 'Make sure to read the error messages as they are informative.' so I think i'll go read the chmod manual again to see what I can do to fix this because I'm not sure what else would help me solve the level at this moment.
+So i was just trying with different chmod options and I thought to use --no-preserve-root and it gave me another error saying 'missing operand'. I googled this and I did not get a direct answer to what it meant. But I did learn something, i remember in the wikepedia that 700 was used when using chmod and when i googled this I found out what 777 means in chmod. So, currently, I think the problem is that I am missing a number. I tried chmod 777 sshkey.private but it lead to opertation not permitted.
+Did a little bit more research on why it probably wasn't permitted, its because chmod 777 is bad as it is a major security risk as it gives read, write, and execute permissions to every single user on the system. But this lead to me learning something, the 700 earlier in the wikepedia meant that the owner got permission to read, write, and execute only.
+This has lead me to believe that I no longer need a number for chmod as not only am i allowed but it isn't needed for this level.
+I decided to go back to square 1 and cat the file. Isn't this what comes up the sshkey private key? Like i've already been given it haven't I, I just need to use it to login.
+So I tried doing ssh bandit14 -i sshkey.private but it didn't work. Don't i need an ip address to login? or what i've learnt that bandit14 needs to have my public key before i can use my private key to login. 
+Then I tried scp "/etc/bandit_pass/bandit14" bandit13@bandit , but that didn't work as permission was denied and I don't know if thats because of an error i made or because the server won't let me.
+Then i did pwd to get my directory, then i did scp "/etc/bandit_pass/bandit14" bandit13@bandit/home/bandit13 , but that didn't work but it said i tried using port 22 so I reattempted it trying it with port 2220.
+IT then told me im trying to loginto this SSH server from localhost and that its blocked and to log in again directly from my client machine but am i supposed to exit out the server and try to repeat the command from there?
+Then i realised, whats the point of using scp? I should be trying to connect to the server not copy stuff from it
+But then it hit me. Im supposed to use scp to copy sshkey.private to my personal computer, so then i have the file of the private passwordkey and then i can use that to connect from my own client instead of through bandit.
+I created a temporary directory using mktemp -d but then i realised i need to have the path to the sshkey.private so i have to relog into it.
+so i did scp -P 2220 bandit13@bandit.labs.overthewire.org:/home/bandit13/sshkey.private <my temporary directory>
+After i inputted my password i had successfuly downloaded the sshkey.private file onto my computer.
+I tried to ssh bandit.labs.overthewire.org -l bandit14 -p 2220 -i sshkey.private but it ended up warning me the private key was too open and that it will be ignored, so that means that I need to use what I thought of earlier to change the permission of my sshkey to 700 so that only I the owner are able to do anything. 
+Then i did chmod 700 sshkey.private and i tried using ssh again and it worked.
+Then i did ls -la , saw a directory called .ssh and cd .ssh where i ls and found a file called authorized_keys which i cat .
+I thought it would give me the password but I should have assumed that it wouldn't be that easy, then i did file and found out it was an OpenSSH RSA public key. Doing my research earlier i remember that there were two types of keys: RSA and DSA . At least i believe i remember it was. 
+But now I'm thinking, why do I need the public key, the public key is only there to authorise my private key so i can log in, so this isnt useful at all. I shouldn't even be in the authorized_keys directory. 
+Then i realised im stupid, the level literally told me the password is saved in bandit14 in /etc/bandit_pass/bandit14
+So what i did was cat /etc/bandit_pass/bandit14 and got my password easily.
+
+Notes: This level was definitely by far the hardest, it was like i was at level 1 all over again in terms of ability but the level itself was 10x as hard, I had to do research on something that I never knew about before or at least did know it existed but didn't know anything about it, had to learn how to copy files from bandit onto my personal computer. Learnt about private keys and public keys, how to use them and what to do with them. learned about chmod which was really cool because I didn't know you could change the mode on your keys to change the authority that people have when you use a certain mode key. I'm glad i went through some problems such as encountering errors as it made me go through the manual more to learn about more stuff such as using the option -i in ssh which I didn't know about.
+Time length: This took around an hour and a half, the first 15 minutes was me trying to do it myself without any help and then I actually did some research to do the level properly.
