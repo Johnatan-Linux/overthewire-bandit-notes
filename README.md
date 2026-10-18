@@ -1,0 +1,1 @@
+Just notes on how I personally completed certain overthewire bandit levels. If you want to check it out, be aware of spoilers as I go through how I did the entire level and i may accidentally reveal answers
